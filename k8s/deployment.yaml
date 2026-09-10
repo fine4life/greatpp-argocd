@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greatapp-argocd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: greatapp-argocd
+  template:
+    metadata:
+      labels:
+        app: greatapp-argocd
+    spec:
+      containers:
+        - name: greatapp-argocd
+          image: docker.io/iheanyi014/greatapp-argocd:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 5170
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:5170"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
